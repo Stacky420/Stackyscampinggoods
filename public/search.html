@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Products - Stacky's Camping Goods</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css">
+    <style>
+        body {
+            background: url('images/background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            scroll-behavior: smooth;
+        }
+
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.8) !important;
+        }
+
+        /* Navbar text styles */
+        .navbar-brand, .nav-link {
+            color: white !important;
+            font-size: 1.25rem; /* Adjust the font size as needed */
+        }
+
+        .nav-link {
+            margin-right: 15px; /* Add spacing between links */
+        }
+
+        .card {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        footer {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .title-section {
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar Section -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Stacky's Camping Goods</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="products.html">Products</a></li>
+                    <li class="nav-item"><a class="nav-link" href="search.html">Search</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+                    <li class="nav-item"><a class="nav-link" href="about.html">About Us</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Title Section -->
+    <div class="container">
+        <div class="title-section">
+            <h2>Search Products</h2>
+        </div>
+    </div>
+
+    <!-- Search Section -->
+    <section class="container mt-4">
+        <div class="card">
+            <form id="searchForm">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id="searchInput" placeholder="Enter product name" aria-label="Product Search" aria-describedby="button-search">
+                    <button class="btn btn-primary" type="submit" id="button-search">Search</button>
+                </div>
+            </form>
+            <div id="search-results" class="mt-4"></div>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer class="bg-dark text-white text-center p-3 mt-4">
+        <p>&copy; 2024 Stacky's Camping Goods | Contact: info@stackyscamping.com</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let products = [];
+
+            fetch('/products')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    products = data;
+                })
+                .catch(error => {
+                    console.error('Error fetching products:', error);
+                });
+
+            document.getElementById('searchForm').addEventListener('submit', (event) => {
+                event.preventDefault();
+
+                const query = document.getElementById('searchInput').value.toLowerCase();
+                const resultsContainer = document.getElementById('search-results');
+                resultsContainer.innerHTML = ''; 
+
+                const filteredProducts = products.filter(product => product.name.toLowerCase().includes(query));
+
+                if (filteredProducts.length > 0) {
+                    filteredProducts.forEach(product => {
+                        const productElement = document.createElement('div');
+                        productElement.classList.add('card', 'mb-3');
+
+                        productElement.innerHTML = `
+                            <div class="row no-gutters">
+                                <div class="col-md-4">
+                                    <img src="images/${product.image}" class="card-img" alt="${product.name}">
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card-body">
+                                        <h5 class="card-title">${product.name}</h5>
+                                        <p class="card-text">Price: $${product.price.toFixed(2)}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+
+                        resultsContainer.appendChild(productElement);
+                    });
+                } else {
+                    resultsContainer.innerHTML = '<p>No products found.</p>';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
